@@ -1,0 +1,8 @@
+{
+  "name": "market-report-generator",
+  "version": "1.0.0",
+  "description": "Market report document generator",
+  "dependencies": {
+    "docx": "^8.5.0"
+  }
+}

@@ -487,17 +487,31 @@ if run_btn and api_key and title:
             output_path = f"/tmp/{safe_title}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.docx"
             js_path = f"/tmp/gen_report_{int(time.time())}.js"
 
+            # Install docx package into /tmp if not already there
+            node_modules_path = "/tmp/node_modules"
+            if not os.path.exists(os.path.join(node_modules_path, "docx")):
+                install_result = subprocess.run(
+                    ["npm", "install", "--prefix", "/tmp", "docx"],
+                    capture_output=True, text=True, timeout=120
+                )
+                if install_result.returncode != 0:
+                    raise Exception(f"npm install failed: {install_result.stderr}")
+
             js_code = build_docx(numbers, content, output_path)
             with open(js_path, "w") as f:
                 f.write(js_code)
 
+            env = os.environ.copy()
+            env["NODE_PATH"] = node_modules_path
+
             result = subprocess.run(
                 ["node", js_path],
-                capture_output=True, text=True, timeout=60
+                capture_output=True, text=True, timeout=60,
+                env=env
             )
 
             if result.returncode != 0 or not os.path.exists(output_path):
-                raise Exception(result.stderr or "Node.js generation failed")
+                raise Exception(result.stderr or result.stdout or "Node.js generation failed")
 
             st.markdown('<div class="done-box">✅ Word document created</div>', unsafe_allow_html=True)
 

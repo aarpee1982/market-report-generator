@@ -79,7 +79,7 @@ def call_gpt(client, system_prompt, user_prompt, json_mode=True):
             {"role": "user", "content": user_prompt}
         ],
         temperature=0.4,
-        max_tokens=4096,
+        max_completion_tokens=4096,
     )
     if json_mode:
         kwargs["response_format"] = {"type": "json_object"}
